@@ -116,7 +116,7 @@ class Timers:
                 ret += " : RUNNING"
 
             if len(root[timer_name]) > 0:
-                ret += self._pretty_print(indent + 1, root[timer_name][2], timer_name)
+                ret += self._pretty_print(indent + 1, root[timer_name][2], timer_name, root[timer_name][2])
 
         return ret
 
