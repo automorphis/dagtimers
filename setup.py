@@ -27,8 +27,7 @@ setup(
     url = "https://github.com/automorphis/dagtimers",
     package_dir = {"": "lib"},
     packages = [
-        "dagtimers",
-        "cornifer._utilities"
+        "dagtimers"
     ],
     zip_safe=False
 )
