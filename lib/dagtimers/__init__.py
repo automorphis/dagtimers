@@ -98,7 +98,7 @@ class Timers:
         for timer_name in ordered:
 
             elapsed = root[timer_name][1]
-            running = root[timer_name][0] == _START_TIME_DEFAULT
+            running = root[timer_name][0] != _START_TIME_DEFAULT
             ret += "\t" * indent + f"{timer_name: <{max_num_chars}}"
 
             if not running:
