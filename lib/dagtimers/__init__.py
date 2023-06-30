@@ -82,7 +82,7 @@ class Timers:
 
         if has_parent:
 
-            parent_running = parent[parent_timer_name][0] == _START_TIME_DEFAULT
+            parent_running = parent[parent_timer_name][0] != _START_TIME_DEFAULT
 
             if not parent_running:
                 parent_elapsed = parent[parent_timer_name][1]
