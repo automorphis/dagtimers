@@ -108,12 +108,12 @@ class Timers:
                 if not parent_running:
 
                     prop = (elapsed / parent_elapsed) * 100
-                    ret += f" ({prop:.3f}%)\n"
+                    ret += f" ({prop:.3f}%)"
 
-                ret += f" [{math.floor(math.log10(elapsed / self._excess))}]"
+                ret += f" [{math.floor(math.log10(elapsed / self._excess))}]\n"
 
             else:
-                ret += " : RUNNING"
+                ret += " : RUNNING\n"
 
             if len(root[timer_name]) > 0:
                 ret += self._pretty_print(indent + 1, root[timer_name][2], timer_name, root[timer_name][2])
