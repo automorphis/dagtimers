@@ -44,19 +44,23 @@ class Timers:
 
     def start(self, timer_name):
 
-        start_time = time()
+        excess_start_time = time()
 
         try:
-            next_node_in_path = self._path[-1][timer_name][2]
+            _, elapsed, next_node_in_path = self._path[-1][timer_name]
 
         except KeyError:
 
             next_node_in_path = {}
             self._path[-1][timer_name] = (time(), 0, next_node_in_path)
 
+        else:
+            self._path[-1][timer_name] = (time(), elapsed, next_node_in_path)
+
+
         self._path.append(next_node_in_path)
         self._parents.append(timer_name)
-        self._excess += time() - start_time
+        self._excess += time() - excess_start_time
 
     def stop(self):
 
