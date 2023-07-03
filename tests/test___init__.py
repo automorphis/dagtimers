@@ -16,7 +16,8 @@
 
 from time import sleep
 from unittest import TestCase
-from dagtimers import Timers, _START_TIME_DEFAULT
+from dagtimers import Timers, _START_TIME_DEFAULT, _INDENT
+
 
 class TestTimers(TestCase):
 
@@ -221,12 +222,12 @@ class TestTimers(TestCase):
         for level, line in zip(profile, pretty_print[:-1].split("\n")):
 
             self.assertEqual(
-                line[:level],
-                "\t" * level
+                line[ : level * len(_INDENT)],
+                _INDENT * level
             )
             self.assertNotEqual(
-                line[level],
-                "\t"
+                line[level * len(_INDENT) : (level + 1) * len(_INDENT)],
+                _INDENT
             )
 
 
