@@ -96,6 +96,37 @@ class TestTimers(TestCase):
         ])
         self._assert_path(timers, [])
 
+    def test_pretty_print(self):
+
+        timers = Timers()
+        self._assert_indent_profile(timers.pretty_print(), [0])
+        timers.start("hi")
+        self._assert_indent_profile(timers.pretty_print(), [0, 0])
+        sleep(0.05)
+        timers.stop()
+        self._assert_indent_profile(timers.pretty_print(), [0, 0])
+        timers.start("hi")
+        self._assert_indent_profile(timers.pretty_print(), [0, 0])
+        sleep(0.2)
+        timers.stop()
+        self._assert_indent_profile(timers.pretty_print(), [0, 0])
+        timers.start("startyyyyy")
+        self._assert_indent_profile(timers.pretty_print(), [0, 0, 0])
+        sleep(0.1)
+        timers.stop()
+        self._assert_indent_profile(timers.pretty_print(), [0, 0, 0])
+        timers.start("hi")
+        sleep(0.01)
+        self._assert_indent_profile(timers.pretty_print(), [0, 0, 0])
+        timers.start("hello")
+        sleep(0.01)
+        self._assert_indent_profile(timers.pretty_print(), [0, 0, 0, 1])
+        timers.stop()
+        self._assert_indent_profile(timers.pretty_print(), [0, 0, 0, 1])
+        timers.stop()
+        self._assert_indent_profile(timers.pretty_print(), [0, 0, 1, 1, 0])
+
+
 
     def _assert_node(self, node, timer_name, default_start_time, zero_elasped, elapsed_lb, children):
 
@@ -175,6 +206,30 @@ class TestTimers(TestCase):
             timers._parents,
             exp_path_names
         )
+
+    def _assert_indent_profile(self, pretty_print, profile):
+
+        try:
+            self.assertEqual(
+                len(profile),
+                pretty_print.count("\n")
+            )
+
+        except AssertionError:
+            raise
+
+        for level, line in zip(profile, pretty_print[:-1].split("\n")):
+
+            self.assertEqual(
+                line[:level],
+                "\t" * level
+            )
+            self.assertNotEqual(
+                line[level],
+                "\t"
+            )
+
+
 
 
 

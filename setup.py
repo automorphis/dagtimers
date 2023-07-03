@@ -18,7 +18,7 @@ from setuptools import setup
 
 setup(
     name = 'dagtimers',
-    version = "0.1",
+    version = "0.1.1",
     description = "Nicely displayed timers.",
     long_description = "Nicely displayed timers.",
     long_description_content_type="text/plain",

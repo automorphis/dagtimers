@@ -21,6 +21,8 @@ from time import time
 __all__ = ["Timers"]
 
 _START_TIME_DEFAULT = -1
+_UNACCOUNTED_STR = "<Unaccounted>"
+_EXCESS_STR = "<Excess>"
 
 class Timers:
 
@@ -57,7 +59,6 @@ class Timers:
         else:
             self._path[-1][timer_name] = (time(), elapsed, next_node_in_path)
 
-
         self._path.append(next_node_in_path)
         self._parents.append(timer_name)
         self._excess += time() - excess_start_time
@@ -80,22 +81,50 @@ class Timers:
             return ret
 
         has_parent = parent_timer_name is not None
-        ordered = sorted(root.keys(), key = lambda timer_name : -root[timer_name][1])
+        ordered = sorted(
+            [timer_name for timer_name in root.keys() if root[timer_name][0] == _START_TIME_DEFAULT],
+            key = lambda timer_name: -root[timer_name][1]
+        )
+        ordered.extend([timer_name for timer_name in root.keys() if root[timer_name][0] != _START_TIME_DEFAULT])
         accounted = sum(t[1] for t in root.values())
-        max_num_chars = max(len(timer_name) for timer_name in root.keys())
+
+        if len(root) > 0:
+            max_num_chars = max(len(timer_name) for timer_name in root.keys())
+
+        else:
+            max_num_chars = 0
 
         if has_parent:
 
+            max_num_chars = max(max_num_chars, len(_UNACCOUNTED_STR))
             parent_running = parent[parent_timer_name][0] != _START_TIME_DEFAULT
 
             if not parent_running:
+
                 parent_elapsed = parent[parent_timer_name][1]
                 unaccounted = parent_elapsed - accounted
-                prop = (unaccounted / parent_elapsed) * 100
-                ret += "\t" * indent + f"Unaccounted : {unaccounted:.7f} ({prop:.3f}%)\n"
+
+                if parent_elapsed != 0:
+                    prop = (unaccounted / parent_elapsed) * 100
+
+                else:
+                    prop = 100
+
+                if parent_elapsed != 0:
+
+                    ret += "\t" * indent + f"<Unaccounted> : {unaccounted:.7f} ({prop:.3f}%)"
+
+                    if self._excess != 0:
+                        ret += f" [{math.floor(math.log10(parent_elapsed / self._excess))}]"
+
+                    else:
+                        ret += " [inf]"
+
+                    ret += "\n"
 
         else:
 
+            max_num_chars = max(max_num_chars, len(_EXCESS_STR))
             parent_elapsed = accounted
             parent_running = False
 
@@ -107,20 +136,31 @@ class Timers:
 
             if not running:
 
-                ret += f" : {elapsed: .7f}"
+                ret += f" : {elapsed:.7f}"
 
-                if not parent_running:
+                if has_parent and not parent_running:
 
-                    prop = (elapsed / parent_elapsed) * 100
+                    if parent_elapsed != 0:
+                        prop = (elapsed / parent_elapsed) * 100
+
+                    else:
+                        prop = 100
+
                     ret += f" ({prop:.3f}%)"
 
-                ret += f" [{math.floor(math.log10(elapsed / self._excess))}]\n"
+                if self._excess != 0 and elapsed != 0:
+                    ret += f" [{math.floor(math.log10(elapsed / self._excess))}]"
+
+                else:
+                    ret += f" [inf]"
+
+                ret += "\n"
 
             else:
                 ret += " : RUNNING\n"
 
-            if len(root[timer_name]) > 0:
-                ret += self._pretty_print(indent + 1, root[timer_name][2], timer_name, root[timer_name][2])
+            if len(root[timer_name][2]) > 0:
+                ret += self._pretty_print(indent + 1, root[timer_name][2], timer_name, root)
 
         return ret
 
@@ -128,5 +168,13 @@ class Timers:
 
         start_time = time()
         ret = self._pretty_print(0, self._dag, None, None)
+
+        if len(self._dag) > 0:
+            max_num_chars = max(len(timer_name) for timer_name in self._dag.keys())
+
+        else:
+            max_num_chars = 0
+
+        max_num_chars = max(max_num_chars, len(_EXCESS_STR))
         self._excess += time() - start_time
-        return f"Excess : {self._excess:.7f}\n" + ret
+        return f"{_EXCESS_STR: <{max_num_chars}} : {self._excess:.7f}\n" + ret
